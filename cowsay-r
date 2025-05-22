@@ -10,4 +10,4 @@ cowsayN() {
     fi
 }
 
-cowsayN "$1"
+cowsayN "$@"
