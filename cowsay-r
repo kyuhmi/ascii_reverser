@@ -1,0 +1,13 @@
+#! /usr/bin/bash
+
+cowsayN() {
+    local n=$1
+    shift
+    if ((n>1)); then
+        cowsay -n | cowsayN $((n-1))
+    else
+        cowsay -n
+    fi
+}
+
+cowsayN "$1"
