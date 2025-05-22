@@ -1,8 +1,6 @@
 ##
 ## gondal cow
 ##
-$eyes = '  ' unless ($eyes ne 'oo');
-
 $the_cow = <<"EOC";
    $thoughts
     $thoughts
