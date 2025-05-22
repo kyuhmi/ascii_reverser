@@ -2,7 +2,6 @@ import argparse
 import json
 from typing import TextIO
 
-
 def read_file_to_list(file_path):
     """Reads lines from a file into a list.
 
@@ -20,8 +19,30 @@ def read_file_to_list(file_path):
         print(f"Error: File not found at {file_path}")  # Optional error message
         return []
 
+def strip_right_from_each(strings):
+    return list(map(str.rstrip, strings))
+
+def get_max_len_str(strings):
+    return max([ len(s) for s in strings ])
+
+def add_padding_to_strings(strings, target_len):
+    return [ s + " " * (target_len - len(s)) for s in strings ]
+
+def mirror_line(line, char_map):
+    chr_mapping_fn = lambda c: char_map[c]
+    result = "".join(reversed("".join(map(chr_mapping_fn, line))))
+    return result
+
+def preprocess_and_mirror_lines(lines, char_map):
+    max_len = get_max_len_str(lines)
+    preprocessed_lines = add_padding_to_strings(strip_right_from_each(lines), max_len)
+    print("preprocessed:") # debug
+    [print(line) for line in preprocessed_lines]
+    result = list(map(lambda line: mirror_line(line, char_map), preprocessed_lines))
+    return result
+
 def write_list_to_file(data, filename):
-    """Writes a list of strings to a file, one string per line.
+    """Writes a list of strings to a file.
     Args:
         data: A list of strings.
         filename: The name of the file to write to.
@@ -89,9 +110,6 @@ def prompt_user_to_create_template():
         else:
             print("Invalid input. Try again.")
 
-def mirror_line(line, char_map):
-    return "".join(reversed(list(map(lambda c: char_map[c], line))))
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Character mapper for flipping ASCII art")
     parser.add_argument('-m', '--application-mode',
@@ -111,7 +129,6 @@ def parse_arguments():
 
 def main():
     mode, input_filepath, map_filepath, output_filepath = parse_arguments()
-    print(mode, input_filepath, output_filepath)
 
     if mode == 'map':
         unique_chars = unique_characters(read_file_to_list(input_filepath))
@@ -124,12 +141,13 @@ def main():
             return
 
         lines = read_file_to_list(input_filepath)
-        mirrored_lines = list(map(lambda line: mirror_line(line, character_map), lines))
+        mirrored_lines = preprocess_and_mirror_lines(lines, character_map)
         print("Result:")
         [ print(line) for line in mirrored_lines ]
 
         if output_filepath is not None:
             write_list_to_file(mirrored_lines, output_filepath)
+            print(f"Written output to {output_filepath}")
 
     elif mode == 'uniq':
         unique_chars = unique_characters(read_file_to_list(input_filepath))
